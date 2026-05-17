@@ -1,8 +1,3 @@
-"""
-components/cards.py
-Reusable card and UI components used across pages.
-"""
-
 from dash import html
 import dash_bootstrap_components as dbc
 

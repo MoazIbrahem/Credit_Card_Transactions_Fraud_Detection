@@ -1,10 +1,3 @@
-"""
-pages/prediction.py
-Prediction page: accepts credit card behavioral features,
-preprocesses them, runs selected clustering models,
-and displays segment assignments with confidence scores.
-"""
-
 import os
 import sys
 import numpy as np
@@ -19,9 +12,7 @@ if BASE_DIR not in sys.path:
 
 from components.cards import result_card, section_header, glass_card
 
-# =============================================================================
 # Load models once at import time
-# =============================================================================
 try:
     from utils.load_models import load_all, Autoencoder
     models, scaler, features, cluster_names, metrics = load_all()
@@ -31,9 +22,7 @@ except Exception as e:
     models, scaler, features, cluster_names, metrics = {}, None, [], {}, {}
     MODELS_LOADED = False
 
-# =============================================================================
 # Load autoencoder separately for GMM pre-encoding
-# =============================================================================
 _autoencoder = None
 try:
     _ae_path = os.path.join(BASE_DIR, "saved_models", "autoencoder.pt")
@@ -47,9 +36,7 @@ except Exception as e:
 # Models that need encoded (8-dim) input instead of raw 17-dim scaled input
 ENCODED_MODELS = {"GMM"}
 
-# =============================================================================
 # Color palette per model
-# =============================================================================
 MODEL_COLORS = {
     "K-Means":      "#64ffda",
     "AE + K-Means": "#34c5e2",
@@ -58,9 +45,7 @@ MODEL_COLORS = {
     "SOM":          "#fb923c",
 }
 
-# =============================================================================
 # Layout
-# =============================================================================
 def prediction_layout():
     model_options = [{"label": m, "value": m} for m in (models.keys() if MODELS_LOADED else [])]
 
@@ -71,7 +56,7 @@ def prediction_layout():
         ),
 
         dbc.Row([
-            # ── Left Column: Input Form ───────────────────────────────────────
+            #  Left Column: Input Form 
             dbc.Col([
                 glass_card(
                     html.Div([
@@ -147,7 +132,7 @@ def prediction_layout():
                 )
             ], width=5),
 
-            # ── Right Column: Results ─────────────────────────────────────────
+            #  Right Column: Results 
             dbc.Col([
                 html.Div(id="pred-results-area", children=[
                     _empty_state()
@@ -157,9 +142,7 @@ def prediction_layout():
     ], className="prediction-page")
 
 
-# =============================================================================
 # Helper: input components
-# =============================================================================
 def _num_input(id_, label, placeholder):
     return html.Div([
         html.Label(label, className="input-label"),
@@ -199,9 +182,7 @@ def _empty_state():
     ], className="empty-state")
 
 
-# =============================================================================
 # Callback: Run Prediction
-# =============================================================================
 @callback(
     Output("pred-results-area", "children"),
     Input("pred-run-btn", "n_clicks"),
@@ -233,7 +214,7 @@ def run_prediction(n_clicks, selected_models,
                    bal_freq, purch_freq, oneoff_freq, install_freq,
                    cash_adv_freq, prc_full, cash_adv_trx, purch_trx, tenure):
 
-    # ── Validation ────────────────────────────────────────────────────────────
+    #  Validation 
     if not selected_models:
         return _alert("Please select at least one model.", "warning")
 
@@ -248,7 +229,7 @@ def run_prediction(n_clicks, selected_models,
     if not MODELS_LOADED:
         return _alert("Models are not loaded. Please check the server logs.", "danger")
 
-    # ── Build & scale input (17-dim) ──────────────────────────────────────────
+    #  Build & scale input (17-dim) 
     try:
         input_data = {
             "BALANCE":                          float(balance),
@@ -277,7 +258,7 @@ def run_prediction(n_clicks, selected_models,
     except Exception as e:
         return _alert(f"Preprocessing error: {e}", "danger")
 
-    # ── Encode to 8-dim for models that need it ───────────────────────────────
+    #  Encode to 8-dim for models that need it 
     input_encoded = None
     if _autoencoder is not None and any(m in ENCODED_MODELS for m in selected_models):
         try:
@@ -288,7 +269,7 @@ def run_prediction(n_clicks, selected_models,
         except Exception as e:
             print(f"⚠️  Autoencoder encoding failed: {e}")
 
-    # ── Run each selected model ───────────────────────────────────────────────
+    #  Run each selected model 
     results = []
     for model_name in selected_models:
         try:
@@ -342,9 +323,7 @@ def run_prediction(n_clicks, selected_models,
     return [header] + results
 
 
-# =============================================================================
 # Helper: alert component
-# =============================================================================
 def _alert(message: str, color: str = "warning"):
     icon = {"warning": "⚠", "danger": "✕", "success": "✓"}.get(color, "ℹ")
     return html.Div([

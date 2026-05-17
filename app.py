@@ -2,9 +2,7 @@ import dash
 from dash import dcc, html, Input, Output, callback_context
 import dash_bootstrap_components as dbc
 
-# =============================================================================
 # App Initialization
-# =============================================================================
 app = dash.Dash(
     __name__,
     external_stylesheets=[dbc.themes.DARKLY],
@@ -13,15 +11,11 @@ app = dash.Dash(
 )
 server = app.server  # For deployment (gunicorn)
 
-# =============================================================================
 # Import page layouts (after app is defined)
-# =============================================================================
 from pages.prediction import prediction_layout
 from pages.comparison import comparison_layout
 
-# =============================================================================
 # App Layout
-# =============================================================================
 app.layout = html.Div([
     # Sidebar Navigation
     html.Div([
@@ -59,9 +53,7 @@ app.layout = html.Div([
 
 ], className="app-root")
 
-# =============================================================================
 # Navigation Callbacks
-# =============================================================================
 @app.callback(
     [Output("link-pred", "className"),
      Output("link-comp", "className")],
@@ -90,9 +82,6 @@ def render_page(p, c):
         return comparison_layout()
     return prediction_layout()
 
-
-# =============================================================================
 # Run
-# =============================================================================
 if __name__ == "__main__":
     app.run(debug=True)

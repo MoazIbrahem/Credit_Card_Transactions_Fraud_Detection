@@ -1,10 +1,3 @@
-"""
-pages/comparison.py
-Model Comparison page: compares K-Means, AE+K-Means, DBSCAN, and GMM
-using Silhouette Score, Davies-Bouldin Index, and Calinski-Harabasz Index.
-All charts and metrics live exclusively on this page.
-"""
-
 import os
 import sys
 import json
@@ -20,9 +13,8 @@ if BASE_DIR not in sys.path:
 
 from components.cards import section_header, glass_card
 
-# =============================================================================
+
 # Load metrics once at import time
-# =============================================================================
 METRICS_PATH = os.path.join(BASE_DIR, "metrics", "clustering_metrics.json")
 try:
     with open(METRICS_PATH, "r") as f:
@@ -47,29 +39,27 @@ MODEL_COLORS = {
     "SOM":          "#fb923c",
 }
 
-# =============================================================================
+
 # Metric definitions
-# =============================================================================
 METRIC_META = {
     "silhouette":          {"label": "Silhouette Score",       "higher_better": True,  "fmt": ".4f", "range": [-1, 1]},
     "davies_bouldin":      {"label": "Davies-Bouldin Index",   "higher_better": False, "fmt": ".4f", "range": [0,  5]},
     "calinski_harabasz":   {"label": "Calinski-Harabasz Index","higher_better": True,  "fmt": ",.0f","range": [0,  None]},
 }
 
-# =============================================================================
+
 # Layout
-# =============================================================================
 def comparison_layout():
     options = [{"label": m, "value": m} for m in ALL_MODELS]
 
     return html.Div([
-        # ── Page Header ───────────────────────────────────────────────────────
+        #  Page Header 
         section_header(
             "Model Comparison",
             "Evaluate and compare all clustering algorithms side by side."
         ),
 
-        # ── Model Selector ────────────────────────────────────────────────────
+        #  Model Selector 
         glass_card(
             html.Div([
                 html.H5("Select Models to Compare", className="form-section-title"),
@@ -87,10 +77,10 @@ def comparison_layout():
 
         html.Div(id="comp-best-banner", className="mt-3"),
 
-        # ── KPI Row ───────────────────────────────────────────────────────────
+        #  KPI Row 
         html.Div(id="comp-kpi-row", className="kpi-row mt-4"),
 
-        # ── Charts Row ────────────────────────────────────────────────────────
+        #  Charts Row 
         dbc.Row([
             dbc.Col([
                 glass_card(
@@ -128,9 +118,8 @@ def comparison_layout():
     ], className="comparison-page")
 
 
-# =============================================================================
+
 # Callback: update all comparison outputs
-# =============================================================================
 @callback(
     [
         Output("comp-best-banner",         "children"),
@@ -153,14 +142,14 @@ def update_comparison(selected):
     models  = list(data.keys())
     colors  = [MODEL_COLORS[m] for m in models]
 
-    # ── Best model (composite rank) ───────────────────────────────────────────
+    #  Best model (composite rank) 
     best_model = _find_best(data)
     best_banner = _build_best_banner(best_model, data[best_model])
 
-    # ── KPI Cards ─────────────────────────────────────────────────────────────
+    #  KPI Cards 
     kpi_cards = _build_kpi_cards(data, best_model)
 
-    # ── Bar charts ────────────────────────────────────────────────────────────
+    #  Bar charts 
     fig_sil = _bar_chart(models, [data[m]["silhouette"]         for m in models], colors,
                          "Silhouette Score", higher_better=True)
     fig_dbi = _bar_chart(models, [data[m]["davies_bouldin"]     for m in models], colors,
@@ -168,15 +157,14 @@ def update_comparison(selected):
     fig_ch  = _bar_chart(models, [data[m]["calinski_harabasz"]  for m in models], colors,
                          "Calinski-Harabasz Index", higher_better=True)
 
-    # ── Properties table ─────────────────────────────────────────────────────
+    #  Properties table 
     prop_table = _properties_table(data)
 
     return best_banner, kpi_cards, fig_sil, fig_dbi, fig_ch, prop_table
 
 
-# =============================================================================
+
 # Helper: find best model by composite rank
-# =============================================================================
 def _find_best(data: dict) -> str:
     scores = {}
     for m, v in data.items():
@@ -190,9 +178,8 @@ def _find_best(data: dict) -> str:
     return max(scores, key=scores.get)
 
 
-# =============================================================================
+
 # Helper: best model banner
-# =============================================================================
 def _build_best_banner(model_name: str, metrics: dict) -> html.Div:
     color = MODEL_COLORS.get(model_name, "#64ffda")
     return html.Div([
@@ -214,9 +201,8 @@ def _build_best_banner(model_name: str, metrics: dict) -> html.Div:
     ], className="best-banner", style={"borderColor": color})
 
 
-# =============================================================================
+
 # Helper: KPI row
-# =============================================================================
 def _build_kpi_cards(data: dict, best_model: str) -> html.Div:
     sil_vals = {m: v["silhouette"]          for m, v in data.items()}
     dbi_vals = {m: v["davies_bouldin"]      for m, v in data.items()}
@@ -259,9 +245,8 @@ def _kpi_metric(label, value, highlight=False):
     ], className=cls)
 
 
-# =============================================================================
+
 # Helper: bar chart factory
-# =============================================================================
 def _bar_chart(models, values, colors, title, higher_better=True):
     # Mark best bar
     best_idx = np.argmax(values) if higher_better else np.argmin(values)
@@ -290,9 +275,8 @@ def _bar_chart(models, values, colors, title, higher_better=True):
     return fig
 
 
-# =============================================================================
+
 # Helper: properties table
-# =============================================================================
 def _properties_table(data: dict) -> html.Div:
     rows = []
     for m, v in data.items():
@@ -315,9 +299,8 @@ def _properties_table(data: dict) -> html.Div:
     ], className="prop-table")
 
 
-# =============================================================================
+
 # Shared figure styling
-# =============================================================================
 def _style_fig(fig: go.Figure, height: int = 300):
     fig.update_layout(
         paper_bgcolor="rgba(0,0,0,0)",
