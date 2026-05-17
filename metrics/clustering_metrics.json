@@ -1,0 +1,37 @@
+{
+  "K-Means": {
+    "silhouette": 0.6463,
+    "davies_bouldin": 1.0058,
+    "calinski_harabasz": 16742.36,
+    "n_clusters": 5,
+    "noise_pct": 0.0
+  },
+  "AE + K-Means": {
+    "silhouette": 0.6605,
+    "davies_bouldin": 0.7795,
+    "calinski_harabasz": 18987.41,
+    "n_clusters": 5,
+    "noise_pct": 0.0
+  },
+  "DBSCAN": {
+    "silhouette": 0.6725,
+    "davies_bouldin": 0.4717,
+    "calinski_harabasz": 17781.48,
+    "n_clusters": 6,
+    "noise_pct": 3.5
+  },
+  "GMM": {
+    "silhouette": 0.6497,
+    "davies_bouldin": 1.2181,
+    "calinski_harabasz": 15953.72,
+    "n_clusters": 5,
+    "noise_pct": 0.0
+  },
+  "SOM": {
+    "silhouette": 0.2251,
+    "davies_bouldin": 1.5083,
+    "calinski_harabasz": 6246.19,
+    "n_clusters": 5,
+    "noise_pct": 0.0
+  }
+}
